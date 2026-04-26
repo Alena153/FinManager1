@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Финансовый помощник</title>
+    <style>
+          .text-item {
+            padding: 2px 6px;
+            font-size: 15px;
+        }
+
+        .container {
+    width: 200px;   
+    height: 300px;
+    margin: 0 auto;
+    flex-direction: column;
+    align-items: flex-start; 
+    gap: 6px; 
+    border: 2px solid black;
+    padding: 12px;
+    border-radius: 6px; 
+    box-sizing: border-box; 
+    overflow: hidden;  
+    background-color: rgb(200, 238, 165);
+    }
+    h1 {
+       text-align: center;
+    }
+    h2 {
+    text-align: center;
+    margin: 0; 
+    }
+    .btn-sm {
+  
+    width: 170px;            
+    height: 28px;   
+    white-space: nowrap;     
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left; 
+    background-color:rgb(233, 243, 223);
+    border-radius: 10px; 
+    cursor: pointer;
+    margin-top: 5px;
+            
+    }
+    button:hover {
+    filter: brightness(0.86);
+}
+.modal1 {
+     border-radius: 10px; 
+      background-color: rgb(239, 249, 231);
+    }
+
+
+.modal2{
+     border-radius: 10px; 
+      background-color: rgb(230, 243, 218);
+}
+ ul {
+            margin-top: 20px;
+           padding-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+            padding-left: 7px;
+            scroll-padding-block-start: #f9f9f9;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+.delete-btn {
+            background-color: #dc3545;
+            padding: 4px 12px;
+            font-size: 12px;
+            border-radius: 5px;
+        }
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+.exit-btn {
+            background-color: #dc3545;
+            padding: 4px 12px;
+            font-size: 12px;
+            border-radius: 5px;
+            margin-top: 10px;
+
+            float: right;
+}
+.dob-btn {
+    background-color: #0ff34c;
+            padding: 4px 12px;
+            font-size: 12px;
+            border-radius: 5px;
+            margin-top: 10px;
+            float: left;
+
+}
+.operation-headers {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    margin: 10px 0;
+    background: #a1f39b;
+    color: rgb(3, 0, 0);
+    border-radius: 5px;
+    font-weight: 600;
+    font-size: 14px;
+    margin-left: 10px;
+}
+
+.operation-headers span {
+    padding: 20px;
+}
+
+
+    </style>
+</head>
+<body>
+    <h1>Финансовый менеджер</h1>
+    
+    <div class="container">
+    <h2>Меню</h2>
+    <button class="btn-sm" id="show">Добавить операцию...</button>
+
+    <dialog class="modal1" id="modal">
+    
+        <h2>Добавление операции</h2>
+        <input style="margin: 5px;" type="text" id="InputSumma" placeholder="Введите сумму"> <br>
+          <input style="margin: 5px;" id="InputData" type="date"  placeholder="Выберите дату"  required> <br>
+          <label style="margin: 5px;"> Выберите тип:</label>
+                <select id="SelectType">
+                    <option value="" selected></option>
+                    <option value="Списание" id="taskOption1">Списание</option>
+                    <option value="Пополнение" id="taskOption2">Пополнение</option>
+                </select> <br>
+                 <label style="margin: 5px;"> Выберите категорию:</label>
+              <select id="SelectCategory" disabled>
+            <option value=""></option>
+        </select> <br>
+        <button class="dob-btn" id="addButton">Добавить</button>
+       
+     <button class="exit-btn" id="btnSave">Выйти</button>
+    </dialog>
+  
+
+    <button class="btn-sm" id="show2">Посмотреть все операции</button>
+
+    <dialog class="modal2" id="modal2">
+         <h2>Все операции</h2>
+         <div class="operation-headers">
+        <span class="header-summa">Сумма</span>
+        <span class="header-data">Дата</span>
+        <span class="header-type">Тип</span>
+        <span class="header-category">Категория</span>
+        </div>
+         <ul type="1" id="OpList"></ul>
+        <input id="search" placeholder="Поиск операции">
+        <button style="margin: 10px; background-color: rgb(106, 106, 215); border-radius: 5px;" id="btnSearch">Найти</button>
+        <ol class="custom-list li " id="finded"></ol>
+
+        
+        <button class="exit-btn" id="exit">Выйти</button>
+    </dialog>
+
+    <img src="favicon.png"  width=250" height="250">
+</div>
+    </div>
+    </body>
+    </html>
+
+    <script>
+        const summa = document.getElementById("InputSumma");
+        const data = document.getElementById("InputData");
+        const type = document.getElementById("SelectType");
+        const category = document.getElementById("SelectCategory");
+        const button = document.getElementById("addButton");
+        const list = document.getElementById("OpList");
+        let operation = [];
+
+
+        function loadCategoryPopolnenie() {
+            const category = document.getElementById('SelectCategory');
+            category.options.length = 0;
+
+            let categories = ['Зарплата', 'Подарок', 'Пассивный доход'];
+            for (let i = 0; i < categories.length; i++) {
+                const option = document.createElement('option');                
+                option.innerText = categories[i];
+                category.options.add(option, null);
+            }
+            category.disabled = false;
+        }
+
+        function loadCategorySpisanie() {
+            const category = document.getElementById('SelectCategory');
+            category.options.length = 0;
+
+            let categories = ['Продукты', 'Связь', 'Развлечения', 'Транспорт', 'Обязательные платежи'];
+            for (let i = 0; i < categories.length; i++) {
+                const option = document.createElement('option');                
+                option.innerText = categories[i];
+                category.options.add(option, null);
+            }
+            category.disabled = false;
+        }
+
+       
+        type.addEventListener("change", function() {
+            const text = type.value;
+            if (text == "Пополнение") {
+                loadCategoryPopolnenie();
+            } else if (text == "Списание") {
+                loadCategorySpisanie();
+            }
+
+        })
+
+        function createTaskItem(summaValue, dataValue, typeValue, categoryValue) {
+
+                const li = document.createElement("li");
+                const span1 = document.createElement('span');
+                span1.className = 'text-item';
+                const span2 = document.createElement('span');
+                span2.className = 'text-item';
+                const span3 = document.createElement('span');
+                span3.className = 'text-item';
+                const span4 = document.createElement('span');
+                span4.className = 'text-item';
+
+
+                span1.textContent = summaValue;
+                span2.textContent = dataValue;
+                span3.textContent = typeValue;
+                span4.textContent = categoryValue;
+               
+              
+
+                const deleteBtn = document.createElement("button");
+                deleteBtn.textContent ="Удалить";
+                deleteBtn.className = "delete-btn";
+
+                deleteBtn.addEventListener("click", function() {
+                    li.remove();
+                    removeItemByTitle(summaValue, dataValue, typeValue, categoryValue);
+                });
+                
+                li.appendChild(span1);
+                li.appendChild(span2);
+                li.appendChild(span3);
+                li.appendChild(span4);
+                li.appendChild(deleteBtn);
+                return li;
+
+        }
+         function removeItemByTitle(summa, data, type, category) {
+            for (let i = 0; i < operation.length; i++) {
+                if (operation[i].summa == summa && operation[i].data == data && operation[i].type == type && operation[i].category == category ) {
+                  //  delete tasks[i];
+                  operation.splice(i, 1);
+                    break;
+                }
+            }
+            saveToLocalStorage();
+         }
+
+        function addTask() {
+
+                const summaValue = summa.value.trim();
+                const dataValue = data.value.trim();
+                const typeValue = type.value.trim();
+                const categoryValue = category.value.trim();
+
+                if (summaValue === "" || dataValue === "" || typeValue === "" || categoryValue === "") {
+                    alert("Заполните все поля");
+                    return;
+                }
+            
+                operation.push({summa: summaValue,
+                                data: dataValue,
+                                type: typeValue,
+                                category: categoryValue,
+                                id: crypto.randomUUID()})
+
+                
+                const taskOperation = createTaskItem(summaValue, dataValue, typeValue, categoryValue);
+
+                list.appendChild(taskOperation);
+
+                    summa.value = "";
+                    summa.focus();
+                    data.value = "";
+                    data.focus();
+                    type.value = "";
+                    type.focus();
+                    category.value = "";
+                    category.focus();
+
+                saveToLocalStorage();
+        }
+
+        function saveToLocalStorage(){
+        const operationToJson = JSON.stringify(operation);
+        localStorage.setItem("operation", operationToJson);
+        }
+        
+       function loadFromLocalStorage(){
+        let operationJSON = localStorage.getItem("operation");
+        if(operationJSON == "" ||  operationJSON == null) {
+            return;
+        }
+        operation = JSON.parse(operationJSON)
+       }
+
+        function renderTasksInList(){
+                
+            for (let i = 0; i < operation.length; i++) { 
+            const operations = createTaskItem(operation[i].summa, operation[i].data, operation[i].type, operation[i].category);
+             list.appendChild(operations);
+        }
+        }
+
+        function loadData() {
+                loadFromLocalStorage();
+                renderTasksInList();
+        }
+
+
+        button.addEventListener("click", addTask);
+
+        summa.addEventListener("keypress",function(event){
+           if (event.key == "Enter") {
+               addTask();
+         }
+         });
+          data.addEventListener("keypress",function(event){
+           if (event.key == "Enter") {
+               addTask();
+         }
+         });
+          type.addEventListener("keypress",function(event){
+           if (event.key == "Enter") {
+               addTask();
+         }
+         });
+          category.addEventListener("keypress",function(event){
+           if (event.key == "Enter") {
+               addTask();
+         }
+         });
+
+        document.addEventListener('DOMContentLoaded', loadData);
+
+
+       const addOp = document.getElementById("modal");
+        document.getElementById("show").onclick = () => addOp.showModal();
+
+         function saveData() {
+
+            modal.close();
+        }
+        function saveData2() {
+
+            modal2.close();
+        }
+        document.getElementById("btnSave").onclick = saveData;
+
+        const searOp = document.getElementById("modal2");
+        document.getElementById("show2").onclick = () => searOp.showModal();
+
+         function saveData() {
+
+            modal.close();
+        }
+
+        document.getElementById("btnSave").onclick = saveData;
+        document.getElementById("exit").onclick = saveData2;
+
+
+        const btnSearch = document.getElementById("btnSearch");
+        const search = document.getElementById("search");
+        const finded = document.getElementById("finded");
+
+    function searchOperation() {
+    const text = search.value.trim().toLowerCase();
+    finded.innerHTML = '';
+
+    if (text =='') {
+        return;
+    }
+    for (let i = 0; i<operation.length; i++) {
+        if (operation[i].summa.toString().toLowerCase().includes(text) || operation[i].data.toString().toLowerCase().includes(text) || operation[i].type.toString().toLowerCase().includes(text) || operation[i].category.toString().toLowerCase().includes(text)){
+            const item = document.createElement("li");
+            item.innerText = operation[i].summa + " " + operation[i].data + " " + operation[i].type + " " + operation[i].category;
+            finded.append(item);
+             }
+         }
+    }
+
+        btnSearch.addEventListener('click', searchOperation);
+        search.addEventListener('input', searchOperation);
+
+    </script>
+    
+</body>
+</html>
